@@ -456,42 +456,6 @@ function bindEvents() {
     renderDashboard(filtered);
   });
 
-  // Pull-to-refresh med korrekt detektion
-  let touchStartY = 0;
-  let touchStartX = 0;
-  let isPulling = false;
-  const viewContainer = document.querySelector('.view-container');
-
-  viewContainer.addEventListener('touchstart', e => {
-    const activeView = document.querySelector('.view.active');
-    // Starta bara om vi är högst upp på sidan
-    if (activeView && activeView.scrollTop <= 0) {
-      touchStartY = e.touches[0].clientY;
-      touchStartX = e.touches[0].clientX;
-      isPulling = true;
-    } else {
-      isPulling = false;
-    }
-  }, { passive: true });
-
-  viewContainer.addEventListener('touchmove', e => {
-    if (!isPulling) return;
-    const deltaY = e.touches[0].clientY - touchStartY;
-    const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
-    // Avbryt om rörelsen är mer horisontell än vertikal
-    if (deltaX > deltaY) { isPulling = false; return; }
-  }, { passive: true });
-
-  viewContainer.addEventListener('touchend', e => {
-    if (!isPulling || isRefreshing) return;
-    const deltaY = e.changedTouches[0].clientY - touchStartY;
-    const deltaX = Math.abs(e.changedTouches[0].clientX - touchStartX);
-    // Kräv tydlig nedåtrörelse (120px) och mer vertikal än horisontell
-    if (deltaY > 120 && deltaY > deltaX * 2) {
-      fetchCoins(true);
-    }
-    isPulling = false;
-  }, { passive: true });
 }
 
 // =============================================
