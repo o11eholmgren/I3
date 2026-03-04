@@ -75,9 +75,9 @@ function registerServiceWorker() {
 // API
 // =============================================
 
-async function fetchCoins(showIndicator = false) {
+async function fetchCoins() {
   try {
-    showRefreshing(true, showIndicator);
+    showRefreshing(true);
     const url = `${API_BASE}/coins/markets?vs_currency=${CURRENCY}&order=market_cap_desc&per_page=${COIN_COUNT}&page=1&sparkline=true&price_change_percentage=24h`;
     const res  = await fetch(url);
     if (!res.ok) throw new Error('API-fel');
@@ -197,7 +197,7 @@ async function openDetail(coinId) {
   switchView('detail');
 
   const container = document.getElementById('detail-content');
-  container.innerHTML = `<div class="empty-state"><div class="pull-spinner" style="margin:auto"></div></div>`;
+  container.innerHTML = `<div class="empty-state"><div class="loading-spinner" style="margin:auto"></div></div>`;
 
   const chartData   = await fetchCoinDetail(coinId);
   const inWatchlist = watchlist.includes(coinId);
@@ -431,7 +431,7 @@ function bindEvents() {
 
   // Refresh-knapp
   document.getElementById('refresh-btn').addEventListener('click', () => {
-    if (!isRefreshing) fetchCoins(true);
+    if (!isRefreshing) fetchCoins();
   });
 
   // PWA Install-knapp
@@ -462,19 +462,13 @@ function bindEvents() {
 // HELPERS
 // =============================================
 
-function showRefreshing(state, showIndicator = false) {
+function showRefreshing(state) {
   isRefreshing = state;
-  const indicator = document.getElementById('pull-indicator');
   const refreshBtn = document.getElementById('refresh-btn');
-
   if (state) {
-    if (showIndicator) indicator.style.height = '44px';
     refreshBtn.classList.add('spinning');
   } else {
-    setTimeout(() => {
-      indicator.style.height = '0px';
-      refreshBtn.classList.remove('spinning');
-    }, 400);
+    setTimeout(() => refreshBtn.classList.remove('spinning'), 400);
   }
 }
 

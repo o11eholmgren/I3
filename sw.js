@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cryptopulse-v3';
+const CACHE_NAME = 'cryptopulse-v10';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
