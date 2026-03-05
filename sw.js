@@ -1,44 +1,21 @@
-const CACHE_NAME = 'cryptopulse-v10';
-const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/app.js',
-  '/manifest.json'
-];
+const CACHE_NAME = 'cryptopulse-v99';
+const IS_LOCAL = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1';
 
-// Installera och cacha statiska resurser
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
-  );
-  self.skipWaiting();
-});
+self.addEventListener('install', () => self.skipWaiting());
 
-// Rensa gamla cacher
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-    )
+    caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))))
   );
   self.clients.claim();
 });
 
-// Cache-first för statiska filer, network-first för API
 self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
-
-  // API-anrop: network-first
-  if (url.hostname.includes('coingecko.com')) {
-    event.respondWith(
-      fetch(event.request).catch(() => new Response('{}', { headers: { 'Content-Type': 'application/json' } }))
-    );
+  // På localhost — hämta alltid från nätverket, ingen cache
+  if (IS_LOCAL) {
+    event.respondWith(fetch(event.request).catch(() => new Response('')));
     return;
   }
-
-  // Statiska resurser: cache-first
-  event.respondWith(
-    caches.match(event.request).then(cached => cached || fetch(event.request))
-  );
+  // På Netlify — network first
+  event.respondWith(fetch(event.request).catch(() => new Response('')));
 });
