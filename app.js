@@ -456,6 +456,19 @@ function bindEvents() {
     renderDashboard(filtered);
   });
 
+  // Dölj sökfält vid scroll ner, visa vid scroll upp
+  let lastScrollY = 0;
+  document.getElementById('view-dashboard').addEventListener('scroll', (e) => {
+    const currentY = e.target.scrollTop;
+    const search = document.querySelector('.search-wrapper');
+    if (currentY > lastScrollY && currentY > 40) {
+      search.classList.add('hidden');
+    } else {
+      search.classList.remove('hidden');
+    }
+    lastScrollY = currentY;
+  });
+
 }
 
 // =============================================
